@@ -42,6 +42,18 @@
 
 	bl GetGpioAddress @solo se llama una vez
 
+	/*-------------LEDS---------------------*/
+	@GPIO para escritura puerto 20
+	mov r0,#20
+	mov r1,#1
+	bl SetGpioFunction	
+
+	@GPIO para escritura puerto 21
+	mov r0,#21
+	mov r1,#1
+	bl SetGpioFunction	
+
+
 AndOrSetting: 
 
 /*--------------------------Pines para obtencion de resultado esperado---------------------------*/	
@@ -65,43 +77,43 @@ AndOrSetting:
 	mov r1,#0
 	bl SetGpioFunction	
 
-/*--------------------------Pines de emision de senal---------------------------*/	
-	@GPIO para lectura puerto 02
+/*--------------------------Pines de escritura ---------------------------*/	
+	@GPIO para escritura puerto 02
 	mov r0,#2
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 03
+	@GPIO para escritura puerto 03
 	mov r0,#3
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 05
+	@GPIO para escritura puerto 05
 	mov r0,#5
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 06
+	@GPIO para escritura puerto 06
 	mov r0,#6
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 17
+	@GPIO para escritura puerto 17
 	mov r0,#17
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 27
+	@GPIO para escritura puerto 27
 	mov r0,#27
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 14
+	@GPIO para escritura puerto 14
 	mov r0,#14
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 15
+	@GPIO para escritura puerto 15
 	mov r0,#15
 	mov r1,#1
 	bl SetGpioFunction	
@@ -141,32 +153,32 @@ NotSetting:
 	bl SetGpioFunction	
 
 /*--------------------------Pines de emision de senal---------------------------*/	
-	@GPIO para lectura puerto 02
+	@GPIO para escritura puerto 02
 	mov r0,#2
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 04
+	@GPIO para escritura puerto 04
 	mov r0,#4
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 06
+	@GPIO para escritura puerto 06
 	mov r0,#6
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 17
+	@GPIO para escritura puerto 17
 	mov r0,#17
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 22
+	@GPIO para escritura puerto 22
 	mov r0,#22
 	mov r1,#1
 	bl SetGpioFunction	
 
-	@GPIO para lectura puerto 15
+	@GPIO para escritura puerto 15
 	mov r0,#15
 	mov r1,#1
 	bl SetGpioFunction	
