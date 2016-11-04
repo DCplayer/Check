@@ -104,7 +104,7 @@ main:
 	
 		bl AndOrSetting
 		
-		@ valores iniciales en los puertos 14 y 15
+		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
 		
 		mov r0, #14
 		mov r1, #1 
@@ -113,6 +113,51 @@ main:
 		mov r0, #15 
 		mov r1, #1  
 		bl SetGpio
+		
+		mov r0, #18
+		bl GetGpio
+		
+		cmp r0, #1
+		
+		
+		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
+		
+		mov r0, #14
+		mov r1, #1 
+		bl SetGpio
+		
+		mov r0, #15 
+		mov r1, #1  
+		bl SetGpio
+		
+		mov r0, #18
+		bl GetGpio
+		
+		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
+		
+		mov r0, #14
+		mov r1, #1 
+		bl SetGpio
+		
+		mov r0, #15 
+		mov r1, #1  
+		bl SetGpio
+		
+		mov r0, #18
+		bl GetGpio
+		
+		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
+		
+		mov r0, #14
+		mov r1, #1 
+		bl SetGpio
+		
+		mov r0, #15 
+		mov r1, #1  
+		bl SetGpio
+		
+		mov r0, #18
+		bl GetGpio
 		
 		
 		
