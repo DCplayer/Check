@@ -145,95 +145,7 @@ GetGpio:
 	pop {pc}
 /*--CODIGO *************************************************************************************************************************/
 
-.global AndOrSetting
-AndOrSetting:
 
-/*--------------------------Pines para obtencion de resultado esperado---------------------------*/
-	@GPIO para lectura puerto 04
-	mov r0,#4
-	mov r1,#0
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-
-	@GPIO para lectura puerto 13
-	mov r0,#13
-	mov r1,#0
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para lectura puerto 22
-	mov r0,#22
-	mov r1,#0
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para lectura puerto 18
-	mov r0,#18
-	mov r1,#0
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-
-/*--------------------------Pines de escritura ---------------------------*/
-	@GPIO para escritura puerto 02
-	mov r0,#2
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 03
-	mov r0,#3
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 05
-	mov r0,#5
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 06
-	mov r0,#6
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 17
-	mov r0,#17
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 27
-	mov r0,#27
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 14
-	mov r0,#14
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
-	
-	@GPIO para escritura puerto 15
-	mov r0,#15
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction}
-	pop {lr}
 	
 .global NotSetting
 NotSetting:
@@ -243,42 +155,42 @@ NotSetting:
 	mov r0,#3
 	mov r1,#0
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para lectura puerto 05
 	mov r0,#5
 	mov r1,#0
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para lectura puerto 13
 	mov r0,#13
 	mov r1,#0
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para lectura puerto 27
 	mov r0,#27
 	mov r1,#0
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para lectura puerto 14
 	mov r0,#14
 	mov r1,#0
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para lectura puerto 18
 	mov r0,#18
 	mov r1,#0
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 /*--------------------------Pines de emision de senal---------------------------*/
@@ -286,42 +198,42 @@ NotSetting:
 	mov r0,#2
 	mov r1,#1
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para escritura puerto 04
 	mov r0,#4
 	mov r1,#1
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para escritura puerto 06
 	mov r0,#6
 	mov r1,#1
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para escritura puerto 17
 	mov r0,#17
 	mov r1,#1
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para escritura puerto 22
 	mov r0,#22
 	mov r1,#1
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 	@GPIO para escritura puerto 15
 	mov r0,#15
 	mov r1,#1
 	push {lr}
-	bl SetGpioFunction}
+	bl SetGpioFunction
 	pop {lr}
 	
 

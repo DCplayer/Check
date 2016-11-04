@@ -67,7 +67,75 @@ main:
 	mov r0,#21
 	mov r1,#1
 	bl SetGpioFunction
+	
+/*--------------------------Pines para obtencion de resultado esperado---------------------------*/
+	@GPIO para lectura puerto 04
+	mov r0,#4
+	mov r1,#0
+	bl SetGpioFunction
 
+	@GPIO para lectura puerto 13
+	mov r0,#13
+	mov r1,#0
+	bl SetGpioFunction
+	
+	@GPIO para lectura puerto 22
+	mov r0,#22
+	mov r1,#0 
+	bl SetGpioFunction
+	
+	@GPIO para lectura puerto 18
+	mov r0,#18
+	mov r1,#1
+	bl SetGpioFunction
+	
+
+/*--------------------------Pines de escritura ---------------------------*/
+	@GPIO para escritura puerto 02
+	mov r0,#2
+	mov r1,#1
+	bl SetGpioFunction
+
+	
+	@GPIO para escritura puerto 03
+	mov r0,#3
+	mov r1,#1
+	bl SetGpioFunction
+
+	
+	@GPIO para escritura puerto 05
+	mov r0,#5
+	mov r1,#1
+	bl SetGpioFunction
+
+	
+	@GPIO para escritura puerto 06
+	mov r0,#6
+	mov r1,#1
+	bl SetGpioFunction
+
+	
+	@GPIO para escritura puerto 17
+	mov r0,#17
+	mov r1,#1
+	bl SetGpioFunction
+	
+	
+	@GPIO para escritura puerto 27
+	mov r0,#27
+	mov r1,#1
+	bl SetGpioFunction
+	
+	@GPIO para escritura puerto 14
+	mov r0,#14
+	mov r1,#1
+	bl SetGpioFunction
+
+	
+	@GPIO para escritura puerto 15
+	mov r0,#15
+	mov r1,#1
+	bl SetGpioFunction
 
 
 	@ Se imprime el menu
@@ -79,9 +147,13 @@ main:
 	bl printf
 	ldr r0, =texto4
 	bl printf
-
+/*----------------------------------------------------------------------------------------------------------------*/
 	@ Se lee la respuesta del usuario
-	menuOptions:
+	mov r0, #20
+	mov r1, #1 
+	bl SetGpio
+	
+	menuOptions:		
 		bl getkey
 
 		cmp r0,#'1'
@@ -93,84 +165,63 @@ main:
 		cmp r0,#'3'
 		beq optionNOT
 
-		
-		
 		b menuOptions
 
 	optionAND:
 		b secure_exit
 
 	optionOR:
-	
-		bl AndOrSetting
+		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
+		mov r0, #18
+		mov r1, #1
+		bl SetGpio
 		
-		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
-		
-		mov r0, #14
+		mov r0, #27
 		mov r1, #1 
 		bl SetGpio
 		
-		mov r0, #15 
-		mov r1, #1  
-		bl SetGpio
-		
-		mov r0, #18
+		mov r0, #22
 		bl GetGpio
 		
 		cmp r0, #1
-		
-		
-		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
-		
-		mov r0, #14
-		mov r1, #1 
+		beq optionOR2
+		bne apagadoOR
+	
+		optionOR2:
+			@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
+			mov r0, #18
+			mov r1, #1
+			bl SetGpio
+			
+			mov r0, #27
+			mov r1, #1 
+			bl SetGpio
+			
+			mov r0, #22
+			bl GetGpio
+			
+			cmp r0, #1
+			beq optionOR2
+			bne apagadoOR
+			
+	prendidoOR: 
+		mov r0, #20
+		mov r1, #1
 		bl SetGpio
-		
-		mov r0, #15 
-		mov r1, #1  
-		bl SetGpio
-		
-		mov r0, #18
-		bl GetGpio
-		
-		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
-		
-		mov r0, #14
-		mov r1, #1 
-		bl SetGpio
-		
-		mov r0, #15 
-		mov r1, #1  
-		bl SetGpio
-		
-		mov r0, #18
-		bl GetGpio
-		
-		@ valores iniciales en los puertos 14 y 15 iniciales 1, 1 
-		
-		mov r0, #14
-		mov r1, #1 
-		bl SetGpio
-		
-		mov r0, #15 
-		mov r1, #1  
-		bl SetGpio
-		
-		mov r0, #18
-		bl GetGpio
-		
-		
-		
 		b secure_exit
+	
+	apagadoOR: 
+		mov r0, #20 
+		mov r1, #0 
+		bl SetGpio
+		b secure_exit
+		
 
 	optionNOT:
 		b secure_exit
 
 	secure_exit:
-		ldr r0,=texto5
-		bl printf
 		bl secure_leave
-		
 
 	/* ----------------------------------------------------------------------------- */
 
@@ -187,4 +238,5 @@ main:
 	texto2: .asciz "1. Componente AND\n"
 	texto3: .asciz "2. Componente OR\n"
 	texto4: .asciz "3. Componente NOT\n"
-	texto5: .asciz "fin\n"
+	alternado: .word 1010
+	otro: .word      1100
