@@ -50,44 +50,11 @@ main:
 	ldr r1,=pixelAddr
 	str r0,[r1]
 
-	@bl GetGpioAddress solo se llama una vez
+ 	@solo se llama una vez
+	bl GetGpioAddress
 
 	@ Configurar la consola de linux para leer el teclado
 	bl enable_key_config
-
-	@ Se imprime el menu
-	ldr r0, =texto1
-	bl printf
-	ldr r0, =texto2
-	bl printf
-	ldr r0, =texto3
-	bl printf
-	ldr r0, =texto4
-	bl printf
-
-	@ Se lee la respuesta del usuario
-	menuOptions:
-		bl getkey
-
-		cmp r0,#'1'
-		beq optionAND
-
-		cmp r0,#'2'
-		beq optionOR
-
-		cmp r0,#'3'
-		beq optionNOT
-
-		b menuOptions
-
-	optionAND:
-		b secure_exit
-
-	optionOR:
-		b secure_exit
-
-	optionNOT:
-		b secure_exit
 
 
 	/*-------------LEDS---------------------*/
@@ -230,6 +197,42 @@ NotSetting:
 	mov r0,#15
 	mov r1,#1
 	bl SetGpioFunction
+
+	/* ----------------------------------------------------------------------------- */
+
+	@ Se imprime el menu
+	ldr r0, =texto1
+	bl printf
+	ldr r0, =texto2
+	bl printf
+	ldr r0, =texto3
+	bl printf
+	ldr r0, =texto4
+	bl printf
+
+	@ Se lee la respuesta del usuario
+	menuOptions:
+		bl getkey
+
+		cmp r0,#'1'
+		beq optionAND
+
+		cmp r0,#'2'
+		beq optionOR
+
+		cmp r0,#'3'
+		beq optionNOT
+
+		b menuOptions
+
+	optionAND:
+		b secure_exit
+
+	optionOR:
+		b secure_exit
+
+	optionNOT:
+		b secure_exit
 
 	secure_exit:
 		ldr r0,=texto5
