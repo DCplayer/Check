@@ -235,7 +235,7 @@ AndOrSetting:
 	bl SetGpioFunction}
 	pop {lr}
 	
-
+.global NotSetting
 NotSetting:
 
 /*--------------------------Pines para obtencion de resultado esperado---------------------------*/
