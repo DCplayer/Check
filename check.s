@@ -125,7 +125,75 @@ main:
 		b menuOptions
 
 	optionAND:
-		b secure_exit
+		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
+		mov r0, #18
+		mov r1, #1
+		bl SetGpio
+		
+		mov r0, #27
+		mov r1, #1 
+		bl SetGpio
+		
+		mov r0, #22
+		bl GetGpio
+		
+		cmp r0, #1
+		beq optionAND2
+		bne apagado
+	
+		optionAND2:
+			
+			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1 		
+			mov r0, #18
+			mov r1, #0
+			bl SetGpio
+			
+			mov r0, #27
+			mov r1, #1 
+			bl SetGpio
+			
+			mov r0, #22
+			bl GetGpio
+			
+			cmp r0, #0
+			beq optionAND3
+			bne apagado
+
+			optionAND3:
+				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0 		
+				mov r0, #18
+				mov r1, #1
+				bl SetGpio
+				
+				mov r0, #27
+				mov r1, #0 
+				bl SetGpio
+				
+				mov r0, #22
+				bl GetGpio
+				
+				cmp r0, #0
+				beq optionAND4
+				bne apagado
+
+				optionAND4: 
+					
+					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0	
+					mov r0, #18
+					mov r1, #0
+					bl SetGpio
+					
+					mov r0, #27
+					mov r1, #0
+					bl SetGpio
+					
+					mov r0, #22
+					bl GetGpio
+					
+					cmp r0, #0
+					beq prendido
+					bne apagado		
+
 
 	optionOR:
 
@@ -146,7 +214,7 @@ main:
 
 		
 		beq optionOR2
-		bne apagadoOR
+		bne apagado
 	
 		optionOR2:
 			
@@ -164,7 +232,7 @@ main:
 			
 			cmp r0, #1
 			beq optionOR3
-			bne apagadoOR
+			bne apagado
 
 			optionOR3:
 				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0 		
@@ -181,7 +249,7 @@ main:
 				
 				cmp r0, #1
 				beq optionOR4
-				bne apagadoOR
+				bne apagado
 
 				optionOR4: 
 					
@@ -198,8 +266,8 @@ main:
 					bl GetGpio
 					
 					cmp r0, #0
-					beq prendidoOR
-					bne apagadoOR		
+					beq prendido
+					bne apagado		
 
 	optionNOT:
 		mov r0, #18
@@ -219,7 +287,7 @@ main:
 
 		cmp r0, #0
 		beq optionNOT2
-		bne apagadoOR
+		bne apagado
 
 		optionNOT2: 
 			mov r0, #18
@@ -230,10 +298,10 @@ main:
 			bl GetGpio
 
 			cmp r0, #1
-			beq prendidoOR
-			bne apagadoOR		
+			beq prendido
+			bne apagado	
 						
-	prendidoOR: 
+	prendido: 
 		mov r0, #18
 		mov r1, #0
 		bl SetGpio
@@ -251,7 +319,7 @@ main:
 		bl SetGpio
 		b secure_exit
 	
-	apagadoOR: 
+	apagado: 
 		mov r0, #18
 		mov r1, #0
 		bl SetGpio
