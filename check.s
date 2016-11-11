@@ -150,7 +150,7 @@ main:
 /*----------------------------------------------------------------------------------------------------------------*/
 	@ Se lee la respuesta del usuario
 	mov r0, #20
-	mov r1, #1
+	mov r1, #0
 	bl SetGpio
 	
 	menuOptions:		
@@ -171,6 +171,8 @@ main:
 		b secure_exit
 
 	optionOR:
+
+		
 		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
 		mov r0, #18
 		mov r1, #1
@@ -184,10 +186,13 @@ main:
 		bl GetGpio
 		
 		cmp r0, #1
+
+		
 		beq optionOR2
 		bne apagadoOR
 	
 		optionOR2:
+			
 			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1 		
 			mov r0, #18
 			mov r1, #0
@@ -204,7 +209,7 @@ main:
 			beq optionOR3
 			bne apagadoOR
 
-			optionOR3: 
+			optionOR3:
 				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0 		
 				mov r0, #18
 				mov r1, #1
@@ -222,6 +227,7 @@ main:
 				bne apagadoOR
 
 				optionOR4: 
+					
 					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0	
 					mov r0, #18
 					mov r1, #0
@@ -236,7 +242,39 @@ main:
 					
 					cmp r0, #0
 					beq prendidoOR
-					bne apagadoOR				
+					bne apagadoOR		
+
+	optionNOT:
+		mov r0, #18
+		mov r1, #1
+		bl SetGpioFunction
+
+		mov r0, #27
+		mov r1, #0
+		bl SetGpioFunction
+
+		mov r0, #18
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #27
+		bl GetGpio
+
+		cmp r0, #0
+		beq optionNOT2
+		bne apagadoOR
+
+		optionNOT2: 
+			mov r0, #18
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #27
+			bl GetGpio
+
+			cmp r0, #1
+			beq prendidoOR
+			bne apagadoOR		
 						
 	prendidoOR: 
 		mov r0, #20
@@ -245,14 +283,21 @@ main:
 		b secure_exit
 	
 	apagadoOR: 
+		mov r0, #18
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #27
+		mov r1, #0
+		bl SetGpio
+
+
+
 		mov r0, #20 
 		mov r1, #0 
 		bl SetGpio
 		b secure_exit
 		
-
-	optionNOT:
-		b secure_exit
 
 	secure_exit:
 		bl secure_leave
