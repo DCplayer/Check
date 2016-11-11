@@ -56,6 +56,10 @@ main:
 	@ Configurar la consola de linux para leer el teclado
 	bl enable_key_config
 
+	@Se dibuja el background
+	ldr r0,=bgCont
+	ldr r0,[r0]
+	bl draw_bg
 
 	/*-------------LEDS---------------------*/
 	@GPIO para escritura puerto 20
@@ -67,207 +71,244 @@ main:
 	mov r0,#21
 	mov r1,#1
 	bl SetGpioFunction
-	
+
 /*--------------------------Pines para obtencion de resultado esperado---------------------------*/
 
-	
+
 	@GPIO para lectura puerto 22
 	mov r0,#22
-	mov r1,#0 
+	mov r1,#0
 	bl SetGpioFunction
-	
+
 	@GPIO para lectura puerto 18
 	mov r0,#18
 	mov r1,#1
 	bl SetGpioFunction
 
-	
+
 	@GPIO para escritura puerto 27
 	mov r0,#27
 	mov r1,#1
 	bl SetGpioFunction
-	
 
 
-	@ Se imprime el menu
-	ldr r0, =texto1
-	bl printf
-	ldr r0, =texto2
-	bl printf
-	ldr r0, =texto3
-	bl printf
-	ldr r0, =texto4
-	bl printf
 /*----------------------------------------------------------------------------------------------------------------*/
 	@ Se apaga la led verde
 	mov r0, #20
 	mov r1, #0
 	bl SetGpio
 
-	@ Se apaga la led roja 
+	@ Se apaga la led roja
 	mov r0, #21
 	mov r1, #0
 	bl SetGpio
 
-	
-	menuOptions:		
+	checkMenu:
 		bl getkey
 
-		cmp r0,#'1'
+		cmp r0, #'C'
+		beq rightKey
+
+		cmp r0, #'D'
+		beq leftKey
+
+		cmp r0, #' '
+		beq checkOption
+
+		b checkMenu
+
+		rightKey:
+			ldr r0,=bgCont
+			ldr r0, [r0]
+
+			cmp r0, #1
+			addeq r0, #1
+			ldreq r1, =bgCont
+			streq r0, [r1]
+			bleq draw_bg
+			beq checkMenu
+
+			cmp r0,#2
+			addeq r0, #1
+			ldreq r1, =bgCont
+			streq r0, [r1]
+			bleq draw_bg
+			b checkMenu
+
+		leftKey:
+			ldr r0,=bgCont
+			ldr r0,[r0]
+
+			cmp r0, #2
+			subeq r0, #1
+			ldreq r1, =bgCont
+			streq r0, [r1]
+			bleq draw_bg
+			beq checkMenu
+
+			cmp r0, #3
+			subeq r0, #1
+			ldreq r1, =bgCont
+			streq r0, [r1]
+			bleq draw_bg
+			b checkMenu
+
+
+	checkOption:
+		ldr r0,=bgCont
+		ldr r0,[r0]
+
+		cmp r0, #1
 		beq optionAND
 
-		cmp r0,#'2'
+		cmp r0, #2
 		beq optionOR
 
-		cmp r0,#'3'
+		cmp r0, #3
 		beq optionNOT
 
-		b menuOptions
-
 	optionAND:
-		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
-		mov r0, #18
-		mov r1, #1
-		bl SetGpio
-		
-		mov r0, #27
-		mov r1, #1 
-		bl SetGpio
-		
-		mov r0, #22
-		bl GetGpio
-		
-		cmp r0, #1
-		beq optionAND2
-		bne apagado
-	
-		optionAND2:
-			
-			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1 		
+			@ valores iniciales en los puertos 18 y 27 iniciales 1, 1
 			mov r0, #18
-			mov r1, #0
+			mov r1, #1
 			bl SetGpio
-			
+
 			mov r0, #27
-			mov r1, #1 
+			mov r1, #1
 			bl SetGpio
-			
+
 			mov r0, #22
 			bl GetGpio
-			
-			cmp r0, #0
-			beq optionAND3
+
+			cmp r0, #1
+			beq optionAND2
 			bne apagado
 
-			optionAND3:
-				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0 		
+			optionAND2:
+
+				@ valores iniciales en los puertos 18 y 27 iniciales 0, 1
 				mov r0, #18
+				mov r1, #0
+				bl SetGpio
+
+				mov r0, #27
 				mov r1, #1
 				bl SetGpio
-				
-				mov r0, #27
-				mov r1, #0 
-				bl SetGpio
-				
+
 				mov r0, #22
 				bl GetGpio
-				
+
 				cmp r0, #0
-				beq optionAND4
+				beq optionAND3
 				bne apagado
 
-				optionAND4: 
-					
-					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0	
+				optionAND3:
+					@ valores iniciales en los puertos 18 y 27 iniciales 1, 0
 					mov r0, #18
-					mov r1, #0
+					mov r1, #1
 					bl SetGpio
-					
+
 					mov r0, #27
 					mov r1, #0
 					bl SetGpio
-					
+
 					mov r0, #22
 					bl GetGpio
-					
+
 					cmp r0, #0
-					beq prendido
-					bne apagado		
+					beq optionAND4
+					bne apagado
+
+					optionAND4:
+
+						@ valores iniciales en los puertos 18 y 27 iniciales 0, 0
+						mov r0, #18
+						mov r1, #0
+						bl SetGpio
+
+						mov r0, #27
+						mov r1, #0
+						bl SetGpio
+
+						mov r0, #22
+						bl GetGpio
+
+						cmp r0, #0
+						beq prendido
+						bne apagado
 
 
 	optionOR:
-
-		
-		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
+		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1
 		mov r0, #18
 		mov r1, #1
 		bl SetGpio
-		
+
 		mov r0, #27
-		mov r1, #1 
+		mov r1, #1
 		bl SetGpio
-		
+
 		mov r0, #22
 		bl GetGpio
-		
+
 		cmp r0, #1
 
-		
+
 		beq optionOR2
 		bne apagado
-	
+
 		optionOR2:
-			
-			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1 		
+
+			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1
 			mov r0, #18
 			mov r1, #0
 			bl SetGpio
-			
+
 			mov r0, #27
-			mov r1, #1 
+			mov r1, #1
 			bl SetGpio
-			
+
 			mov r0, #22
 			bl GetGpio
-			
+
 			cmp r0, #1
 			beq optionOR3
 			bne apagado
 
 			optionOR3:
-				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0 		
+				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0
 				mov r0, #18
 				mov r1, #1
 				bl SetGpio
-				
+
 				mov r0, #27
-				mov r1, #0 
+				mov r1, #0
 				bl SetGpio
-				
+
 				mov r0, #22
 				bl GetGpio
-				
+
 				cmp r0, #1
 				beq optionOR4
 				bne apagado
 
-				optionOR4: 
-					
-					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0	
+				optionOR4:
+
+					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0
 					mov r0, #18
 					mov r1, #0
 					bl SetGpio
-					
+
 					mov r0, #27
 					mov r1, #0
 					bl SetGpio
-					
+
 					mov r0, #22
 					bl GetGpio
-					
+
 					cmp r0, #0
 					beq prendido
-					bne apagado		
+					bne apagado
 
 	optionNOT:
 		mov r0, #18
@@ -289,7 +330,7 @@ main:
 		beq optionNOT2
 		bne apagado
 
-		optionNOT2: 
+		optionNOT2:
 			mov r0, #18
 			mov r1, #0
 			bl SetGpio
@@ -299,9 +340,9 @@ main:
 
 			cmp r0, #1
 			beq prendido
-			bne apagado	
-						
-	prendido: 
+			bne apagado
+
+	prendido:
 		mov r0, #18
 		mov r1, #0
 		bl SetGpio
@@ -318,8 +359,8 @@ main:
 		mov r1, #0
 		bl SetGpio
 		b secure_exit
-	
-	apagado: 
+
+	apagado:
 		mov r0, #18
 		mov r1, #0
 		bl SetGpio
@@ -328,21 +369,20 @@ main:
 		mov r1, #0
 		bl SetGpio
 
-		mov r0, #20 
-		mov r1, #0 
+		mov r0, #20
+		mov r1, #0
 		bl SetGpio
 
 		mov r0, #21
 		mov r1, #1
 		bl SetGpio
 		b secure_exit
-		
+
 
 	secure_exit:
 		bl secure_leave
 
 	/* ----------------------------------------------------------------------------- */
-
 
 .data
 	@ -------------------------------------
@@ -356,5 +396,9 @@ main:
 	texto2: .asciz "1. Componente AND\n"
 	texto3: .asciz "2. Componente OR\n"
 	texto4: .asciz "3. Componente NOT\n"
-	alternado: .word 1010
-	otro: .word      1100
+	texto5: .asciz "fin\n"
+	alternado: .word 1, 0, 1, 0
+	otro: .word      1, 1, 0, 0
+
+	@ ----- Variables del background -------
+	bgCont: .word 2
