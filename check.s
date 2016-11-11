@@ -69,15 +69,7 @@ main:
 	bl SetGpioFunction
 	
 /*--------------------------Pines para obtencion de resultado esperado---------------------------*/
-	@GPIO para lectura puerto 04
-	mov r0,#4
-	mov r1,#0
-	bl SetGpioFunction
 
-	@GPIO para lectura puerto 13
-	mov r0,#13
-	mov r1,#0
-	bl SetGpioFunction
 	
 	@GPIO para lectura puerto 22
 	mov r0,#22
@@ -88,54 +80,13 @@ main:
 	mov r0,#18
 	mov r1,#1
 	bl SetGpioFunction
-	
 
-/*--------------------------Pines de escritura ---------------------------*/
-	@GPIO para escritura puerto 02
-	mov r0,#2
-	mov r1,#1
-	bl SetGpioFunction
-
-	
-	@GPIO para escritura puerto 03
-	mov r0,#3
-	mov r1,#1
-	bl SetGpioFunction
-
-	
-	@GPIO para escritura puerto 05
-	mov r0,#5
-	mov r1,#1
-	bl SetGpioFunction
-
-	
-	@GPIO para escritura puerto 06
-	mov r0,#6
-	mov r1,#1
-	bl SetGpioFunction
-
-	
-	@GPIO para escritura puerto 17
-	mov r0,#17
-	mov r1,#1
-	bl SetGpioFunction
-	
 	
 	@GPIO para escritura puerto 27
 	mov r0,#27
 	mov r1,#1
 	bl SetGpioFunction
 	
-	@GPIO para escritura puerto 14
-	mov r0,#14
-	mov r1,#1
-	bl SetGpioFunction
-
-	
-	@GPIO para escritura puerto 15
-	mov r0,#15
-	mov r1,#1
-	bl SetGpioFunction
 
 
 	@ Se imprime el menu
@@ -148,10 +99,16 @@ main:
 	ldr r0, =texto4
 	bl printf
 /*----------------------------------------------------------------------------------------------------------------*/
-	@ Se lee la respuesta del usuario
+	@ Se apaga la led verde
 	mov r0, #20
 	mov r1, #0
 	bl SetGpio
+
+	@ Se apaga la led roja 
+	mov r0, #21
+	mov r1, #0
+	bl SetGpio
+
 	
 	menuOptions:		
 		bl getkey
@@ -277,8 +234,20 @@ main:
 			bne apagadoOR		
 						
 	prendidoOR: 
+		mov r0, #18
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #27
+		mov r1, #0
+		bl SetGpio
+
 		mov r0, #20
 		mov r1, #1
+		bl SetGpio
+
+		mov r0, #21
+		mov r1, #0
 		bl SetGpio
 		b secure_exit
 	
@@ -291,10 +260,12 @@ main:
 		mov r1, #0
 		bl SetGpio
 
-
-
 		mov r0, #20 
 		mov r1, #0 
+		bl SetGpio
+
+		mov r0, #21
+		mov r1, #1
 		bl SetGpio
 		b secure_exit
 		
