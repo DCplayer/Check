@@ -150,7 +150,7 @@ main:
 /*----------------------------------------------------------------------------------------------------------------*/
 	@ Se lee la respuesta del usuario
 	mov r0, #20
-	mov r1, #1 
+	mov r1, #1
 	bl SetGpio
 	
 	menuOptions:		
@@ -188,9 +188,9 @@ main:
 		bne apagadoOR
 	
 		optionOR2:
-			@ valores iniciales en los puertos 18 y 27 iniciales 1, 1 		
+			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1 		
 			mov r0, #18
-			mov r1, #1
+			mov r1, #0
 			bl SetGpio
 			
 			mov r0, #27
@@ -201,9 +201,43 @@ main:
 			bl GetGpio
 			
 			cmp r0, #1
-			beq optionOR2
+			beq optionOR3
 			bne apagadoOR
-			
+
+			optionOR3: 
+				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0 		
+				mov r0, #18
+				mov r1, #1
+				bl SetGpio
+				
+				mov r0, #27
+				mov r1, #0 
+				bl SetGpio
+				
+				mov r0, #22
+				bl GetGpio
+				
+				cmp r0, #1
+				beq optionOR4
+				bne apagadoOR
+
+				optionOR4: 
+					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0	
+					mov r0, #18
+					mov r1, #0
+					bl SetGpio
+					
+					mov r0, #27
+					mov r1, #0
+					bl SetGpio
+					
+					mov r0, #22
+					bl GetGpio
+					
+					cmp r0, #0
+					beq prendidoOR
+					bne apagadoOR				
+						
 	prendidoOR: 
 		mov r0, #20
 		mov r1, #1
