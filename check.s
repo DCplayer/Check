@@ -76,7 +76,7 @@ main:
 	mov r1,#0 
 	bl SetGpioFunction
 	
-	@GPIO para lectura puerto 18
+	@GPIO para escritura puerto 18
 	mov r0,#18
 	mov r1,#1
 	bl SetGpioFunction
@@ -274,7 +274,7 @@ main:
 		mov r1, #1
 		bl SetGpio
 
-		mov r0, #18
+		mov r0, #27
 		bl GetGpio
 
 		cmp r0, #0
@@ -286,13 +286,25 @@ main:
 			mov r1, #0
 			bl SetGpio
 
-			mov r0, #27
+			mov r0, #18
 			bl GetGpio
 
 			cmp r0, #1
 			beq prendido
 			bne apagado	
-						
+	
+
+	wait: 	
+												@Subrutina de delay
+	ldr r0, =bign	 @ big number
+	ldr r0, [r0]
+	sleepLoop:
+	sub r0,#1
+	cmp r0, #0
+	bne sleepLoop @ loop delay
+	mov pc, lr 
+
+
 	prendido: 
 		mov r0, #18
 		mov r1, #0
@@ -309,6 +321,7 @@ main:
 		mov r0, #21
 		mov r1, #0
 		bl SetGpio
+		bl wait
 		b secure_exit
 	
 	apagado: 
@@ -327,11 +340,23 @@ main:
 		mov r0, #21
 		mov r1, #1
 		bl SetGpio
+		bl wait 
 		b secure_exit
 		
 
 	secure_exit:
+		mov r0, #20
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #21
+		mov r1, #0
+		bl SetGpio
+
+
 		bl secure_leave
+
+
 
 	/* ----------------------------------------------------------------------------- */
 
@@ -348,6 +373,7 @@ main:
 	texto2: .asciz "1. Componente AND\n"
 	texto3: .asciz "2. Componente OR\n"
 	texto4: .asciz "3. Componente NOT\n"
+	bign: .word 180000000
 	alternado: .word 1010
 	otro: .word      1100
 	vector1:					.word 0,0,0,0 @@vector de ingreso

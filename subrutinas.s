@@ -193,3 +193,14 @@ AndOrSetting:
 	pop {lr}
 
 	pop {pc}
+
+    /*-- wait:	 HACE UN  DELAY***********/
+	/*-- @param: NO HAY*/	
+	.global wait   
+   	wait:
+	ldr r0,=477108864 @ big number
+	sleepLoop:
+	subs r0,#1
+	bne sleepLoop @ loop delay
+	mov pc,lr
+
