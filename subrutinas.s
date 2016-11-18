@@ -1,13 +1,14 @@
-/* ********************************************************************************************************************************** 
+/* **********************************************************************************************************************************
    subrutinas.s
 
-      Por: Diego Castaneda,   Carnet: 15151
+      Por:
+	 Diego Castaneda,   Carnet: 15151
   	 Alejandro Chaclan, Carnet: 15018
-        Carlos Calderon,   Carnet: 15219
-   Taller de Assembler, Seccion: 30
+	 Carlos Calderon,   Carnet: 15219
+     Taller de Assembler, Seccion: 30
 
-   Taller de Assembler
-   Universidad del Valle de Guatemala
+     Taller de Assembler
+     Universidad del Valle de Guatemala
 
    ******************************************************************************************************************************* */
 /*--CODIGO *************************************************************************************************************************/
@@ -29,7 +30,7 @@ GetGpioAddress:
 	bl phys_to_virt
  	mov r7, r0  @ r7 points to that physical page
  	ldr r6, =myloc
- 	str r7, [r6] @ save this 
+ 	str r7, [r6] @ save this
 	pop {pc}
 	.unreq gpioAddr
 
@@ -52,7 +53,7 @@ SetGpioFunction:
 	pinNum .req r2
 	@bl GetGpioAddress no se llama la funcion sino
 	ldr r6, =myloc
- 	ldr r0, [r6] @ obtener direccion 	
+ 	ldr r0, [r6] @ obtener direccion
 	gpioAddr .req r0
 
 	functionLoop$:
@@ -85,23 +86,23 @@ SetGpioFunction:
 
 /* NEW
 * SetGpio sets the GPIO pin addressed by register r0 high if r1 != 0 and low
-* otherwise. 
+* otherwise.
 * C++ Signature: void SetGpio(u32 gpioRegister, u32 value)
 */
 .global SetGpio
-SetGpio:	
+SetGpio:
     pinNum .req r0
     pinVal .req r1
 
 	cmp pinNum,#53
 	movhi pc,lr
 	push {lr}
-	mov r2,pinNum	
-    .unreq pinNum	
+	mov r2,pinNum
+    .unreq pinNum
     pinNum .req r2
 	@bl GetGpioAddress no se llama la funcion sino
 	ldr r6, =myloc
- 	ldr r0, [r6] @ obtener direccion 
+ 	ldr r0, [r6] @ obtener direccion
     gpioAddr .req r0
 
 	pinBank .req r3
@@ -124,16 +125,16 @@ SetGpio:
 	.unreq gpioAddr
 	pop {pc}
 
-	.global GetGpio
+.global GetGpio
 GetGpio:
 	push {lr}
 	push {r5-r8}
 	mov r8,r0
-	
+
 	ldr r6,=myloc
 	ldr r0,[r6]
 	ldr r5,[r0,#0x34]
-	
+
 	mov r7,#1
 	lsl r7,r8
 	and r5,r5,r7
@@ -145,62 +146,105 @@ GetGpio:
 	pop {pc}
 /*--CODIGO *************************************************************************************************************************/
 
+/*
+* R0, Direccion de memoria a la matriz
+* R1, X inicial
+* R2, Y inicial
+* R3, Width de la matriz
+* Stack-1 Height de la matriz
+* Codigo Basado en el proporcionado en blackboard
+*/
+.global draw_image
+draw_image:
+	ldr r5, [sp], #4
+	mov r4, r3
+	mov r6, r0
+	push {lr}
 
-	
-.global NotSetting
-NotSetting:
-	push {lr}
-/*--------------------------Pines para obtencion de resultado esperado---------------------------*/
-	@GPIO para entrada puerto 18
-	mov r0,#18
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction
-	pop {lr}
-	
-	@GPIO para lectura puerto 27
-	mov r0,#27
-	mov r1,#0
-	push {lr}
-	bl SetGpioFunction
-	pop {lr}
-	
+	add r4, r1
+	add r5, r2
+	x .req r1
+	y .req r2
+	color .req r3
+	finalx .req r4
+	finaly .req r5
+	matrix_addr .req r6
+	matrix_counter .req r7
+	temp .req r8
+
+	mov matrix_counter, #0
+	mov temp, x
+
+	next_x:
+		mov x, temp
+		draw_pixel:
+			cmp x, finalx
+			bge next_y
+			ldrh color, [matrix_addr, matrix_counter]
+			ldr r0, =pixelAddr
+			ldr r0, [r0]
+			push {r0-r12}
+			bl pixel
+			pop {r0-r12}
+			add matrix_counter, #2 @ Se suma dos debido a que esta en depth 16
+			add x, #1
+			b draw_pixel
+
+	next_y:
+		add y, #1
+		teq y, finaly
+		bne next_x
+
+		.unreq x
+		.unreq y
+		.unreq color
+		.unreq finalx
+		.unreq finaly
+		.unreq matrix_addr
+		.unreq matrix_counter
+		.unreq temp
+
 	pop {pc}
 
-.global AndOrSetting
-AndOrSetting: 
+
+@@ R0: Numero de componente a enseñar
+.global draw_bg
+draw_bg:
 	push {lr}
 
-	@GPIO para lectura puerto 22
-	mov r0,#22
-	mov r1,#0 
-	push {lr}
-	bl SetGpioFunction
-	pop {lr}
+	mov r5,r0
 
-	@GPIO para lectura puerto 18
-	mov r0,#18
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction
-	pop {lr}
-	
-	@GPIO para escritura puerto 27
-	mov r0,#27
-	mov r1,#1
-	push {lr}
-	bl SetGpioFunction
-	pop {lr}
+	mov r1, #0
+	mov r2, #0
+
+	cmp r5, #1
+	ldreq r0, =Image_Matrix_bgfinalAND
+	ldreq r3, =Width_bgfinalAND
+	ldreq r3, [r3]
+	ldreq r4, =Height_bgfinalAND
+	ldreq r4, [r4]
+	streq r4, [sp, #-4]!
+	beq endDraw_bg
+
+	cmp r5,#2
+	ldreq r0, =Image_Matrix_bgfinalOR
+	ldreq r3, =Width_bgfinalOR
+	ldreq r3, [r3]
+	ldreq r4, =Height_bgfinalOR
+	ldreq r4, [r4]
+	streq r4, [sp, #-4]!
+	beq endDraw_bg
+
+	cmp r5,#3
+	ldreq r0, =Image_Matrix_bgfinalNOT
+	ldreq r3, =Width_bgfinalNOT
+	ldreq r3, [r3]
+	ldreq r4, =Height_bgfinalNOT
+	ldreq r4, [r4]
+	streq r4, [sp, #-4]!
+	beq endDraw_bg
+
+	endDraw_bg:
+		bl draw_image
 
 	pop {pc}
-
-    /*-- wait:	 HACE UN  DELAY***********/
-	/*-- @param: NO HAY*/	
-	.global wait   
-   	wait:
-	ldr r0,=477108864 @ big number
-	sleepLoop:
-	subs r0,#1
-	bne sleepLoop @ loop delay
-	mov pc,lr
-
