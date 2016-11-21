@@ -181,6 +181,11 @@ draw_image:
 			cmp x, finalx
 			bge next_y
 			ldrh color, [matrix_addr, matrix_counter]
+			ldr r0, =63488
+			cmp color, r0
+			addeq matrix_counter, #2
+			addeq x, #1
+			beq draw_pixel
 			ldr r0, =pixelAddr
 			ldr r0, [r0]
 			push {r0-r12}
@@ -207,6 +212,7 @@ draw_image:
 	pop {pc}
 
 
+@@ Input:
 @@ R0: Numero de componente a enseñar
 .global draw_bg
 draw_bg:
@@ -214,37 +220,237 @@ draw_bg:
 
 	mov r5,r0
 
+	@ Aqui se dice que se empieza a dibujar en 0,0
 	mov r1, #0
 	mov r2, #0
 
 	cmp r5, #1
-	ldreq r0, =Image_Matrix_bgfinalAND
-	ldreq r3, =Width_bgfinalAND
+	ldreq r0, =Image_Matrix_bgfinalAND @ Se carga la direccion de la matriz de colores de la imagen
+	ldreq r3, =Width_bgfinalAND @ Se carga el width de la imagen
 	ldreq r3, [r3]
-	ldreq r4, =Height_bgfinalAND
+	ldreq r4, =Height_bgfinalAND @ Se carga el height de la imagen
 	ldreq r4, [r4]
 	streq r4, [sp, #-4]!
 	beq endDraw_bg
 
 	cmp r5,#2
-	ldreq r0, =Image_Matrix_bgfinalOR
-	ldreq r3, =Width_bgfinalOR
+	ldreq r0, =Image_Matrix_bgfinalOR @ Se carga la direccion de la matriz de colores de la imagen
+	ldreq r3, =Width_bgfinalOR @ Se carga el width de la imagen
 	ldreq r3, [r3]
-	ldreq r4, =Height_bgfinalOR
+	ldreq r4, =Height_bgfinalOR @ Se carga el height de la imagen
 	ldreq r4, [r4]
 	streq r4, [sp, #-4]!
 	beq endDraw_bg
 
 	cmp r5,#3
-	ldreq r0, =Image_Matrix_bgfinalNOT
-	ldreq r3, =Width_bgfinalNOT
+	ldreq r0, =Image_Matrix_bgfinalNOT @ Se carga la direccion de la matriz de colores de la imagen
+	ldreq r3, =Width_bgfinalNOT @ Se carga el width de la imagen
 	ldreq r3, [r3]
-	ldreq r4, =Height_bgfinalNOT
+	ldreq r4, =Height_bgfinalNOT@ Se carga el height de la imagen
 	ldreq r4, [r4]
 	streq r4, [sp, #-4]!
 	beq endDraw_bg
 
 	endDraw_bg:
-		bl draw_image
+		bl draw_image @ Se dibuja la imagen
+
+	pop {pc}
+
+@@ Subrutina que dibuja las instrucciones de animacion de los componentes AND y OR
+.global draw_instr
+draw_instr:
+	push {lr}
+
+	ldr r0,=anim_cont @ Se pone una tolerancia, que es el numero de veces que tiene que ingresar a la subrutina para dibujar la siguiente imagen
+	ldr r0,[r0]
+	ldr r1,=tolerance
+	ldr r1,[r1]
+	cmp r0, r1
+	addne r0, #1
+	ldrne r1, =anim_cont
+	strne r0, [r1]
+	bne draw_instr2
+	ldr r0,=anim_turn @ Se revisa que imagen de la animacion toca
+	ldr r0,[r0]
+	cmp r0, #0
+	beq draw_instr_anim1
+	cmp r0, #1
+	beq draw_instr_anim2
+
+	@ Se cambia el numero de la animacion que toca despues
+	draw_instr_anim1:
+		mov r0, #1
+		ldr r1, =anim_turn
+		str r0, [r1]
+		b changeAnim
+	@ Se cambia el numero de la animacion que toca despues
+	draw_instr_anim2:
+		mov r0, #0
+		ldr r1, =anim_turn
+		str r0, [r1]
+		b changeAnim
+	@ Se reinicia el contador para revisar la tolerancia
+	changeAnim:
+		ldr r1,=anim_cont
+		mov r0, #0
+		str r0,[r1]
+		b draw_instr2
+
+	@ Se cargan las propiedades de la imagen para dibujarla
+	draw_instr2:
+		mov r1,#0 @ Aqui se dice que se empieza a dibujar en 0,0
+		mov r2,#0 @ Aqui se dice que se empieza a dibujar en 0,0
+		ldr r5,=anim_turn
+		ldr r5,[r5]
+		cmp r5,#0
+		ldreq r0,=Image_Matrix_bgCompuerta @ Se carga la direccion de la matriz de colores de la imagen
+		ldrne r0,=Image_Matrix_bgCompuertaColor @ Se carga la direccion de la matriz de colores de la imagen
+		ldr r3, =Width_bgfinalNOT @ Se carga el width de la imagen
+		ldr r3, [r3]
+		ldr r4, =Height_bgfinalNOT @ Se carga el height de la imagen
+		ldr r4, [r4]
+		str r4,[sp,#-4]!
+		bl draw_image @ Se dibuja la imagen
+
+	pop {pc}
+
+@@ Subrutina que dibuja la animacion de las instrucciones del componente NOT
+.global draw_instrNOT
+draw_instrNOT:
+	push {lr}
+
+	ldr r0,=anim_cont @ Se pone una tolerancia, que es el numero de veces que tiene que ingresar a la subrutina para dibujar la siguiente imagen
+	ldr r0,[r0]
+	ldr r1,=tolerance
+	ldr r1,[r1]
+	cmp r0, r1
+	addne r0, #1
+	ldrne r1, =anim_cont
+	strne r0, [r1]
+	bne draw_instr2_NOT
+	ldr r0,=anim_turn @ Se revisa que imagen de la animacion toca
+	ldr r0,[r0]
+	cmp r0, #0
+	beq draw_instr_anim1_NOT
+	cmp r0, #1
+	beq draw_instr_anim2_NOT
+
+	@ Se cambia el numero de la animacion que toca despues
+	draw_instr_anim1_NOT:
+		mov r0, #1
+		ldr r1, =anim_turn
+		str r0, [r1]
+		b changeAnim_NOT
+	@ Se cambia el numero de la animacion que toca despues
+	draw_instr_anim2_NOT:
+		mov r0, #0
+		ldr r1, =anim_turn
+		str r0, [r1]
+		b changeAnim_NOT
+	@ Se reinicia el contador para revisar la tolerancia
+	changeAnim_NOT:
+		ldr r1,=anim_cont
+		mov r0, #0
+		str r0,[r1]
+		b draw_instr2_NOT
+
+	@ Se cargan las propiedades de la imagen para dibujarla
+	draw_instr2_NOT:
+		mov r1,#0 @ Aqui se dice que se empieza a dibujar en 0,0
+		mov r2,#0 @ Aqui se dice que se empieza a dibujar en 0,0
+		ldr r5,=anim_turn
+		ldr r5,[r5]
+		cmp r5,#0
+		ldreq r0,=Image_Matrix_bgCompuerta @ Se carga la direccion de la matriz de colores de la imagen
+		ldrne r0,=Image_Matrix_bgCompuertaColorNOT @ Se carga la direccion de la matriz de colores de la imagen
+		ldr r3, =Width_bgfinalNOT @ Se carga el width de la imagen
+		ldr r3, [r3]
+		ldr r4, =Height_bgfinalNOT @ Se carga el height de la imagen
+		ldr r4, [r4]
+		str r4,[sp,#-4]!
+		bl draw_image  @ Se dibuja la imagen
+
+	pop {pc}
+
+@@ Subrutina que dibuja las instrucciones de como leer el resultado
+@@ Input:
+@@ r0: opcion elegida por el usuario
+.global draw_result_instr
+draw_result_instr:
+	push {lr}
+
+	mov r5,r0
+
+	@ Aqui se dice que se empieza a dibujar desde 0,0
+	mov r1, #0
+	mov r2, #0
+
+
+	cmp r5,#3 @ Se carga la direccion de la matriz de colores
+	ldrne r0, =Image_Matrix_InstructionsANDOR
+	ldreq r0, =Image_Matrix_InstructionsNOT
+	ldr r3, =Width_InstructionsANDOR @ Se carga el width de la imagen
+	ldr r3, [r3]
+	ldr r4, =Height_InstructionsANDOR @ Se carga el height de la imagen
+	ldr r4, [r4]
+	str r4, [sp, #-4]!
+	bl draw_image @ Se dibuja la imagen
+
+	pop {pc}
+
+@ Input:
+@ r0: gpio de lectura 1
+@ r1: gpio de lectura 2
+@ r2: gpio de salida
+@ r3: direccion del vector de resultado segun el componente
+.global checkAnd
+checkAnd:
+	push {lr}
+
+	mov r7, r0 @@ gpio de entrada 1
+	mov r8, r1 @@ gpio de entrada 2
+	mov r9, r2 @@ gpio de salida
+	mov r10, r3 @@ direccion del vector de resultados esperados
+
+	dir_tabla .req r2
+	dir_tablaAlt .req r3
+	dir_res .req r4
+	cont .req r5
+	resp .req r6
+
+	ldr dir_tabla,= tabla
+	ldr dir_tablaAlt,= tablaAlt
+	mov dir_res, r10
+
+	mov cont,#0
+	mov resp,#1
+
+	loopCheckAnd:
+		mov r0, r7
+		ldr r1,[dir_tabla],#4
+		bl SetGpio
+
+		mov r0, r8
+		ldr r1,[dir_tablaAlt],#4
+		bl SetGpio
+
+		mov r0, r9
+		bl GetGpio
+
+		ldr r1,[dir_res],#4
+		cmp r0, r1
+		movne resp,#0
+
+		add cont,#1
+		cmp cont,#4
+		bne loopCheckAnd
+
+	mov r0,resp
+
+	.unreq dir_tabla
+	.unreq dir_tablaAlt
+	.unreq dir_res
+	.unreq cont
+	.unreq resp
 
 	pop {pc}

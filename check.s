@@ -61,6 +61,7 @@ main:
 	ldr r0,[r0]
 	bl draw_bg
 
+
 	/*-------------LEDS---------------------*/
 	@GPIO para escritura puerto 20
 	mov r0,#20
@@ -71,25 +72,7 @@ main:
 	mov r0,#21
 	mov r1,#1
 	bl SetGpioFunction
-
-/*--------------------------Pines para obtencion de resultado esperado---------------------------*/
-
-
-	@GPIO para lectura puerto 22
-	mov r0,#22
-	mov r1,#0
-	bl SetGpioFunction
-
-	@GPIO para lectura puerto 18
-	mov r0,#18
-	mov r1,#1
-	bl SetGpioFunction
-
-
-	@GPIO para escritura puerto 27
-	mov r0,#27
-	mov r1,#1
-	bl SetGpioFunction
+	
 
 
 /*----------------------------------------------------------------------------------------------------------------*/
@@ -103,6 +86,14 @@ main:
 	mov r1, #0
 	bl SetGpio
 
+	
+	@Se dibuja el background
+	ldr r0,=bgCont
+	ldr r0,[r0]
+	bl draw_bg
+
+	@ En el menu principal se revisa si el usuario presiona la flecha izquierda o derecha para moverse
+	@ y dibuja el background correspondiente y se guarda la opcion elegida
 	checkMenu:
 		bl getkey
 
@@ -113,10 +104,11 @@ main:
 		beq leftKey
 
 		cmp r0, #' '
-		beq checkOption
+		beq showAnimation
 
 		b checkMenu
 
+		@ Background a dibujar si presiona la tecla derecha, guarda la opcion actual
 		rightKey:
 			ldr r0,=bgCont
 			ldr r0, [r0]
@@ -135,6 +127,7 @@ main:
 			bleq draw_bg
 			b checkMenu
 
+		@ Background a dibujar si presiona la tecla izquierda, guarda la opcion actual
 		leftKey:
 			ldr r0,=bgCont
 			ldr r0,[r0]
@@ -153,7 +146,32 @@ main:
 			bleq draw_bg
 			b checkMenu
 
+	@@ Se muestran las primeras instrucciones con animacion, muestra la siguiente hasta que precione espacio
+	showAnimation:
+		bl getkey
 
+		cmp r0, #' '
+		beq showInstructions
+
+		@Carga el valor de la opcion elegida y muestra las siguientes instrucciones segun eso
+		ldr r0,=bgCont
+		ldr r0,[r0]
+		cmp r0, #3
+		blne draw_instr
+		cmp r0, #3
+		bleq draw_instrNOT
+
+		b showAnimation
+
+	@@ Se muestran las instrucciones de como saber el resultado segun la opcion elegida
+	showInstructions:
+		ldr r0,=bgCont
+		ldr r0,[r0]
+		bl draw_result_instr
+
+		b checkOption
+
+	@@ Se revisa la opcion del usuario
 	checkOption:
 		ldr r0,=bgCont
 		ldr r0,[r0]
@@ -168,221 +186,1270 @@ main:
 		beq optionNOT
 
 	optionAND:
-			@ valores iniciales en los puertos 18 y 27 iniciales 1, 1
-			mov r0, #18
-			mov r1, #1
-			bl SetGpio
+		
+		/*Set all gpio functions according to the role they play on the component */
 
-			mov r0, #27
-			mov r1, #1
-			bl SetGpio
+		/*Cluster no. 1 gpio*/
+		@GPIO para escritura puerto 14
+		mov r0,#14
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para escritura puerto 15
+		mov r0,#15
+		mov r1,#1
+		bl SetGpioFunction
 
-			mov r0, #22
-			bl GetGpio
+		@GPIO para lectura puerto 18
+		mov r0,#18
+		mov r1,#0 
+		bl SetGpioFunction
 
-			cmp r0, #1
-			beq optionAND2
-			bne apagado
+		/*Cluster no. 2 gpio*/	
+		@GPIO para escritura puerto 02
+		mov r0,#2
+		mov r1,#1
+		bl SetGpioFunction
+		
+		@GPIO para escritura puerto 03
+		mov r0,#3
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 04
+		mov r0,#4
+		mov r1,#0
+		bl SetGpioFunction
+		
+		/*Cluster no. 3 gpio*/
+		@GPIO para escritura puerto 23
+		mov r0,#23
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para escritura puerto 24
+		mov r0,#24
+		mov r1,#1
+		bl SetGpioFunction
+		
+		@GPIO para lectura puerto 25
+		mov r0,#25
+		mov r1,#0 
+		bl SetGpioFunction
+	
+		/*Cluster no. 4 gpio*/
+		@GPIO para escritura puerto 10
+		mov r0,#10
+		mov r1,#1
+		bl SetGpioFunction
+		
+		@GPIO para escritura puerto 09
+		mov r0,#9
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 11
+		mov r0,#11
+		mov r1,#0
+		bl SetGpioFunction
+		
+	/*--------------------------------------------------------------------------------*/	
 
-			optionAND2:
+	
+/*Clustet No. 1*/
+	And1C1: 
 
-				@ valores iniciales en los puertos 18 y 27 iniciales 0, 1
-				mov r0, #18
-				mov r1, #0
-				bl SetGpio
+	mov r0, #14
+	mov r1, #0
+	bl SetGpio
 
-				mov r0, #27
-				mov r1, #1
-				bl SetGpio
+	mov r0, #15
+	mov r1, #0
+	bl SetGpio
 
-				mov r0, #22
-				bl GetGpio
+	mov r0, #18
+	bl GetGpio
 
-				cmp r0, #0
-				beq optionAND3
-				bne apagado
+	mov r9, r0
+	cmp r9, #0	
+	beq And2C1
 
-				optionAND3:
-					@ valores iniciales en los puertos 18 y 27 iniciales 1, 0
-					mov r0, #18
-					mov r1, #1
-					bl SetGpio
+	cmp r9, #0
+	blne apagado
+	
+	cmp r9, #0
+	bne And1C2
 
-					mov r0, #27
-					mov r1, #0
-					bl SetGpio
+	And2C1: 
+		mov r0, #14
+		mov r1, #1
+		bl SetGpio
 
-					mov r0, #22
-					bl GetGpio
+		mov r0, #15
+		mov r1, #0
+		bl SetGpio
 
-					cmp r0, #0
-					beq optionAND4
-					bne apagado
-
-					optionAND4:
-
-						@ valores iniciales en los puertos 18 y 27 iniciales 0, 0
-						mov r0, #18
-						mov r1, #0
-						bl SetGpio
-
-						mov r0, #27
-						mov r1, #0
-						bl SetGpio
-
-						mov r0, #22
-						bl GetGpio
-
-						cmp r0, #0
-						beq prendido
-						bne apagado
-
-
-	optionOR:
-		@ valores iniciales en los puertos 18 y 27 iniciales 1, 1
 		mov r0, #18
-		mov r1, #1
-		bl SetGpio
-
-		mov r0, #27
-		mov r1, #1
-		bl SetGpio
-
-		mov r0, #22
 		bl GetGpio
 
-		cmp r0, #1
+		mov r9, r0
+		cmp r9, #0
+		beq And3C1
 
+		cmp r9, #0
+		blne apagado
+		
+		cmp r9, #0
+		bne And1C2
 
-		beq optionOR2
-		bne apagado
-
-		optionOR2:
-
-			@ valores iniciales en los puertos 18 y 27 iniciales 0, 1
-			mov r0, #18
+		And3C1: 
+			mov r0, #14
 			mov r1, #0
 			bl SetGpio
 
-			mov r0, #27
+			mov r0, #15
 			mov r1, #1
 			bl SetGpio
 
-			mov r0, #22
+			mov r0, #18
 			bl GetGpio
 
-			cmp r0, #1
-			beq optionOR3
-			bne apagado
+			mov r9, r0
+			cmp r9, #0
+			beq And4C1
 
-			optionOR3:
-				@ valores iniciales en los puertos 18 y 27 iniciales 1, 0
-				mov r0, #18
+			cmp r9, #0
+			blne apagado
+			
+			cmp r9, #0
+			bne And1C2
+
+			And4C1: 
+				mov r0, #14
 				mov r1, #1
 				bl SetGpio
 
-				mov r0, #27
-				mov r1, #0
+				mov r0, #15
+				mov r1, #1
 				bl SetGpio
 
-				mov r0, #22
+				mov r0, #18
 				bl GetGpio
 
-				cmp r0, #1
-				beq optionOR4
-				bne apagado
+				mov r9, r0
+				cmp r9, #1
+				bleq prendido
 
-				optionOR4:
+				cmp r9, #1
+				blne apagado
 
-					@ valores iniciales en los puertos 18 y 27 iniciales 0, 0
-					mov r0, #18
-					mov r1, #0
-					bl SetGpio
+				b And1C2
+	
+	/*Clustet No. 2*/
+	And1C2: 
 
-					mov r0, #27
-					mov r1, #0
-					bl SetGpio
+	mov r0, #2
+	mov r1, #0
+	bl SetGpio
 
-					mov r0, #22
-					bl GetGpio
+	mov r0, #3
+	mov r1, #0
+	bl SetGpio
 
-					cmp r0, #0
-					beq prendido
-					bne apagado
+	mov r0, #4
+	bl GetGpio
+
+	mov r9, r0
+	cmp r9, #0	
+	beq And2C2
+
+	cmp r9, #0
+	blne apagado
+	
+	cmp r9, #0
+	bne And1C3
+
+	And2C2: 
+		mov r0, #2
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #3
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #4
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		beq And3C2
+
+		cmp r9, #0
+		blne apagado
+		
+		cmp r9, #0
+		bne And1C3
+
+		And3C2: 
+			mov r0, #2
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #3
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #4
+			bl GetGpio
+
+			mov r9, r0
+			cmp r9, #0
+			beq And4C2
+
+			cmp r9, #0
+			blne apagado
+			
+			cmp r9, #0
+			bne And1C3
+
+			And4C2: 
+				mov r0, #2
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #3
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #4
+				bl GetGpio
+
+				mov r9, r0
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+
+				b And1C3
+	
+	/*Clustet No. 3*/
+	And1C3: 
+
+	mov r0, #23
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #24
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #25
+	bl GetGpio
+
+	mov r9, r0
+	cmp r9, #0	
+	beq And2C3
+
+	cmp r9, #0
+	blne apagado
+	
+	cmp r9, #0
+	bne And1C4
+
+	And2C3: 
+		mov r0, #23
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #24
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #25
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		beq And3C3
+
+		cmp r9, #0
+		blne apagado
+		
+		cmp r9, #0
+		bne And1C4
+
+		And3C3: 
+			mov r0, #23
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #24
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #25
+			bl GetGpio
+
+			mov r9, r0
+			cmp r9, #0
+			beq And4C3
+
+			cmp r9, #0
+			blne apagado
+			
+			cmp r9, #0
+			bne And1C4
+
+			And4C3: 
+				mov r0, #23
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #24
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #25
+				bl GetGpio
+
+				mov r9, r0
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+
+				b And1C4
+	
+	/*Cluster No. 4*/
+	And1C4: 
+
+	mov r0, #10
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #9
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #11
+	bl GetGpio
+
+	mov r9, r0
+
+	cmp r9, #0
+	beq And2C4
+
+	cmp r9, #0
+	blne apagado
+
+	cmp r9, #0		
+	bne secure_exit
+
+	And2C4: 
+		mov r0, #10
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #9
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #11
+		bl GetGpio
+
+		mov r9, r0
+
+		cmp r9, #0
+		beq And3C4
+
+		cmp r9, #0
+		blne apagado
+		
+		cmp r9, #0
+		bne secure_exit
+
+		And3C4: 
+			mov r0, #10
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #9
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #11
+			bl GetGpio
+
+			mov r9, r0
+
+			cmp r9, #0
+			beq And4C4
+
+			cmp r9, #0
+			blne apagado
+			
+			cmp r9, #0
+			bne secure_exit
+
+			And4C4: 
+				mov r0, #10
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #9
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #11
+				bl GetGpio
+
+				mov r9, r0
+
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+				
+				b secure_exit
+	optionOR:
+
+		/*Set all gpio functions according to the role they play on the component*/
+
+		/*Cluster no. 1 gpio*/
+		@GPIO para escritura puerto 14
+		mov r0,#14
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para escritura puerto 15
+		mov r0,#15
+		mov r1,#1
+		bl SetGpioFunction
+
+		@GPIO para lectura puerto 18
+		mov r0,#18
+		mov r1,#0 
+		bl SetGpioFunction
+
+		/*Cluster no. 2 gpio*/	
+		@GPIO para escritura puerto 02
+		mov r0,#2
+		mov r1,#1
+		bl SetGpioFunction
+		
+		@GPIO para escritura puerto 03
+		mov r0,#3
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 04
+		mov r0,#4
+		mov r1,#0
+		bl SetGpioFunction
+		
+		/*Cluster no. 3 gpio*/
+		@GPIO para escritura puerto 23
+		mov r0,#23
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para escritura puerto 24
+		mov r0,#24
+		mov r1,#1
+		bl SetGpioFunction
+		
+		@GPIO para lectura puerto 25
+		mov r0,#25
+		mov r1,#0 
+		bl SetGpioFunction
+	
+		/*Cluster no. 4 gpio*/
+		@GPIO para escritura puerto 10
+		mov r0,#10
+		mov r1,#1
+		bl SetGpioFunction
+		
+		@GPIO para escritura puerto 09
+		mov r0,#9
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 11
+		mov r0,#11
+		mov r1,#0
+		bl SetGpioFunction
+		
+	/*--------------------------------------------------------------------------------*/	
+	/*Clustet No. 1*/
+	Or1C1: 
+
+	mov r0, #14
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #15
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #18
+	bl GetGpio
+
+	mov r9, r0
+	cmp r9, #0	
+	beq Or2C1
+
+	cmp r9, #0
+	blne apagado
+	
+	cmp r9, #0
+	bne Or1C2
+
+	Or2C1: 
+		mov r0, #14
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #15
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #18
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #1
+		beq Or3C1
+
+		cmp r9, #1
+		blne apagado
+		
+		cmp r9, #1
+		bne Or1C2
+
+		Or3C1: 
+			mov r0, #14
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #15
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #18
+			bl GetGpio
+
+			mov r9, r0
+			cmp r9, #1
+			beq Or4C1
+
+			cmp r9, #1
+			blne apagado
+			
+			cmp r9, #1
+			bne Or1C2
+
+			Or4C1: 
+				mov r0, #14
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #15
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #18
+				bl GetGpio
+
+				mov r9, r0
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+
+				b Or1C2
+	
+	/*Clustet No. 2*/
+	Or1C2:  
+
+	mov r0, #2
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #3
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #4
+	bl GetGpio
+
+	mov r9, r0
+	cmp r9, #0	
+	beq Or2C2
+
+	cmp r9, #0
+	blne apagado
+	
+	cmp r9, #0
+	bne Or1C3
+
+	Or2C2: 
+		mov r0, #2
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #3
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #4
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #1
+		beq Or3C2
+
+		cmp r9, #1
+		blne apagado
+		
+		cmp r9, #1
+		bne Or1C3
+
+		Or3C2: 
+			mov r0, #2
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #3
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #4
+			bl GetGpio
+
+			mov r9, r0
+			cmp r9, #1
+			beq Or4C2
+
+			cmp r9, #1
+			blne apagado
+			
+			cmp r9, #1
+			bne Or1C3
+
+			Or4C2: 
+				mov r0, #2
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #3
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #4
+				bl GetGpio
+
+				mov r9, r0
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+
+				b Or1C3
+	
+	/*Clustet No. 3*/
+	Or1C3: 
+
+	mov r0, #23
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #24
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #25
+	bl GetGpio
+
+	mov r9, r0
+	cmp r9, #0	
+	beq Or2C3
+
+	cmp r9, #0
+	blne apagado
+	
+	cmp r9, #0
+	bne Or1C4
+
+	Or2C3: 
+		mov r0, #23
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #24
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #25
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #1
+		beq Or3C3
+
+		cmp r9, #1
+		blne apagado
+		
+		cmp r9, #1
+		bne Or1C4
+
+		Or3C3: 
+			mov r0, #23
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #24
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #25
+			bl GetGpio
+
+			mov r9, r0
+			cmp r9, #1
+			beq Or4C3
+
+			cmp r9, #1
+			blne apagado
+			
+			cmp r9, #1
+			bne Or1C4
+
+			Or4C3: 
+				mov r0, #23
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #24
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #25
+				bl GetGpio
+
+				mov r9, r0
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+
+				b Or1C4
+	Or1C4: 
+
+	mov r0, #10
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #9
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #11
+	bl GetGpio
+
+	mov r9, #0
+
+	cmp r9, #0
+	beq Or2C4
+
+	cmp r9, #0
+	blne apagado
+
+	cmp r9, #0		
+	bne secure_exit
+
+	Or2C4: 
+		mov r0, #10
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #9
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #11
+		bl GetGpio
+
+		mov r9, r0
+
+		cmp r9, #1
+		beq Or3C4
+
+		cmp r9, #1
+		blne apagado
+		
+		cmp r9, #1
+		bne secure_exit
+
+		Or3C4: 
+			mov r0, #10
+			mov r1, #0
+			bl SetGpio
+
+			mov r0, #9
+			mov r1, #1
+			bl SetGpio
+
+			mov r0, #11
+			bl GetGpio
+
+			mov r9, r0
+
+			cmp r9, #1
+			beq Or4C4
+
+			cmp r9, #1
+			blne apagado
+			
+			cmp r9, #1
+			bne secure_exit
+
+			Or4C4: 
+				mov r0, #10
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #9
+				mov r1, #1
+				bl SetGpio
+
+				mov r0, #11
+				bl GetGpio
+
+				mov r9, r0
+
+				cmp r9, #1
+				bleq prendido
+
+				cmp r9, #1
+				blne apagado
+				
+				b secure_exit
+
 
 	optionNOT:
-		mov r0, #18
-		mov r1, #1
+		
+		/*Set all gpio functions according to the role they play on the */
+
+		/*Cluster no. 1 gpio*/
+		@GPIO para escritura puerto 14
+		mov r0,#14
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para Lectura puerto 15
+		mov r0,#15
+		mov r1,#0
 		bl SetGpioFunction
 
-		mov r0, #27
-		mov r1, #0
+		/*Cluster no. 2 gpio*/
+		@GPIO para escritura puerto 18
+		mov r0,#18
+		mov r1,#1
 		bl SetGpioFunction
 
-		mov r0, #18
+			
+		@GPIO para lectura puerto 02
+		mov r0,#2
+		mov r1,#0
+		bl SetGpioFunction
+		
+		/*Cluster no. 3 gpio*/
+		@GPIO para escritura puerto 03
+		mov r0,#3
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 04
+		mov r0,#4
+		mov r1,#0
+		bl SetGpioFunction
+		
+		/*Cluster no. 4 gpio*/
+		@GPIO para escritura puerto 23
+		mov r0,#23
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 24
+		mov r0,#24
+		mov r1,#0
+		bl SetGpioFunction
+		
+		/*Cluster no. 5 gpio*/
+		@GPIO para escritura puerto 25
+		mov r0,#25
+		mov r1,#1
+		bl SetGpioFunction
+	
+		
+		@GPIO para lectura puerto 10
+		mov r0,#10
+		mov r1,#0
+		bl SetGpioFunction
+		
+		/*Cluster no. 6 gpio*/
+		@GPIO para escritura puerto 09
+		mov r0,#9
+		mov r1,#1 
+		bl SetGpioFunction
+	
+		@GPIO para lectura puerto 11
+		mov r0,#11
+		mov r1,#0
+		bl SetGpioFunction
+		
+	/*--------------------------------------------------------------------------------*/	
+
+	/*Cluster No. 1*/
+
+	Not1C1: 
+
+	mov r0, #14
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #15
+	bl GetGpio
+
+	mov r0, r9
+	cmp r9, #1
+	beq Not2C1
+
+	cmp r9, #0 
+	blne apagado
+
+	cmp r9, #0
+	bne Not1C2
+
+	Not2C1: 
+		mov r0, #14
 		mov r1, #1
 		bl SetGpio
 
-		mov r0, #27
+		mov r0, #15
 		bl GetGpio
 
-		cmp r0, #0
-		beq optionNOT2
-		bne apagado
+		mov r9, r0
+		cmp r9, #0
+		bleq prendido
 
-		optionNOT2:
-			mov r0, #18
-			mov r1, #0
-			bl SetGpio
+		cmp r9, #0
+		blne apagado
 
-			mov r0, #27
-			bl GetGpio
+		b Not1C2
+	
+	/*Cluster No. 2*/
 
-			cmp r0, #1
-			beq prendido
-			bne apagado
+	Not1C2: 
 
-	prendido:
+	mov r0, #18
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #2
+	bl GetGpio
+
+	mov r0, r9
+	cmp r9, #1
+	beq Not2C2
+
+	cmp r9, #0 
+	blne apagado
+
+	cmp r9, #0
+	bne Not1C3
+
+	Not2C2: 
 		mov r0, #18
-		mov r1, #0
+		mov r1, #1
 		bl SetGpio
 
-		mov r0, #27
-		mov r1, #0
+		mov r0, #02
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		bleq prendido
+
+		cmp r9, #0
+		blne apagado
+
+		b Not1C3
+
+	/*Cluster No. 3*/
+
+	Not1C3: 
+
+	mov r0, #3
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #4
+	bl GetGpio
+
+	mov r0, r9
+	cmp r9, #1
+	beq Not2C3
+
+	cmp r9, #0 
+	blne apagado
+
+	cmp r9, #0
+	bne Not1C4
+
+	Not2C3: 
+		mov r0, #3
+		mov r1, #1
 		bl SetGpio
 
+		mov r0, #4
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		bleq prendido
+
+		cmp r9, #0
+		blne apagado
+
+		b Not1C4
+
+	/*Cluster No. 4*/
+
+	Not1C4: 
+
+	mov r0, #23
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #24
+	bl GetGpio
+
+	mov r0, r9
+	cmp r9, #1
+	beq Not2C4
+
+	cmp r9, #0 
+	blne apagado
+
+	cmp r9, #0
+	bne Not1C5
+
+	Not2C4: 
+		mov r0, #23
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #24
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		bleq prendido
+
+		cmp r9, #0
+		blne apagado
+
+		b Not1C5
+
+	/*Cluster No. 5*/
+
+	Not1C5: 
+
+	mov r0, #25
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #10
+	bl GetGpio
+
+	mov r0, r9
+	cmp r9, #1
+	beq Not2C5
+
+	cmp r9, #0 
+	blne apagado
+
+	cmp r9, #0
+	bne Not1C6
+
+	Not2C5: 
+		mov r0, #25
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #10
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		bleq prendido
+
+		cmp r9, #0
+		blne apagado
+
+		b Not1C6
+
+	/*Cluster No. 6*/
+
+	Not1C6: 
+
+	mov r0, #9
+	mov r1, #0
+	bl SetGpio
+
+	mov r0, #11
+	bl GetGpio
+
+	mov r0, r9
+	cmp r9, #1
+	beq Not2C6
+
+	cmp r9, #0 
+	blne apagado
+
+	cmp r9, #0
+	bne secure_exit
+
+	Not2C6: 
+		mov r0, #9
+		mov r1, #1
+		bl SetGpio
+
+		mov r0, #11
+		bl GetGpio
+
+		mov r9, r0
+		cmp r9, #0
+		bleq prendido
+
+		cmp r9, #0
+		blne apagado
+
+		b secure_exit
+
+	
+
+
+	wait: 	
+	push {lr}									@Subrutina de delay
+	ldr r0, =bign	 @ big number
+	ldr r0, [r0]
+	sleepLoop:
+	sub r0,#1
+	cmp r0, #0
+	bne sleepLoop @ loop delay
+	pop {pc} 
+
+
+	prendido: 
+		push {lr}
 		mov r0, #20
 		mov r1, #1
 		bl SetGpio
+		
+		mov r0, #21
+		mov r1, #0
+		bl SetGpio
+		
+		
+		push {lr}
+		bl wait
+		pop {lr}
+
+		mov r0, #20
+		mov r1, #0
+		bl SetGpio
+		
+		pop {pc}
+	
+	apagado: 
+
+		push {lr}
+
+		mov r0, #20 
+		mov r1, #0 
+		bl SetGpio
+		
+		mov r0, #21
+		mov r1, #1
+		bl SetGpio
+			
+		push {lr}
+		bl wait
+		pop {lr} 
 
 		mov r0, #21
 		mov r1, #0
 		bl SetGpio
-		b secure_exit
+		
+		
 
-	apagado:
-		mov r0, #18
-		mov r1, #0
-		bl SetGpio
+		push {lr}
+		bl wait
+		pop {lr} 
+		
+		pop {pc}
 
-		mov r0, #27
-		mov r1, #0
-		bl SetGpio
+	cancelacion: 
 
-		mov r0, #20
-		mov r1, #0
+		mov r0, #20 
+		mov r1, #0 
+		push {lr}
 		bl SetGpio
+		pop {lr}
+		
 
 		mov r0, #21
-		mov r1, #1
+		mov r1, #0
+		push {lr}
 		bl SetGpio
-		b secure_exit
+		pop {lr}
+		
+		push {lr}
+		bl wait
+		pop {lr} 
 
+		push {lr}
+		bl wait
+		pop {lr} 
+
+		mov pc, lr 
+		
 
 	secure_exit:
+		mov r0, #20
+		mov r1, #0
+		bl SetGpio
+
+		mov r0, #21
+		mov r1, #0
+		bl SetGpio
+
+
 		bl secure_leave
 
+
+
 	/* ----------------------------------------------------------------------------- */
+
 
 .data
 	@ -------------------------------------
@@ -399,6 +1466,25 @@ main:
 	texto5: .asciz "fin\n"
 	alternado: .word 1, 0, 1, 0
 	otro: .word      1, 1, 0, 0
+	
+	@ --------- Variables de animacion compuertas AND y OR ------------
+	.global tolerance
+	tolerance: .word 17
+	.global anim_cont
+	anim_cont: .word 0
+	.global anim_turn
+	anim_turn: .word 0
 
+	.global tabla
+	tabla: .word 1, 1, 0, 0
+	.global tablaAlt
+	tablaAlt: .word 1, 0, 1, 0
+	.global resAnd
+	resAnd: .word 1, 0, 0, 0
+	.global resOr
+	resOr: .word 1, 1, 1, 0
+	formato: .asciz "%d"
+	
 	@ ----- Variables del background -------
 	bgCont: .word 2
+	bign: .word 180000000
